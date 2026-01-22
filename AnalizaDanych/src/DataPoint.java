@@ -3,12 +3,14 @@ public class DataPoint {
     private String category;
     private int quantity;
     private double price;
+    private boolean available; // ZMIANA: Typ logiczny
 
-    public DataPoint(String product, String category, int quantity, double price) {
+    public DataPoint(String product, String category, int quantity, double price, boolean available) {
         this.product = product;
         this.category = category;
         this.quantity = quantity;
         this.price = price;
+        this.available = available;
     }
 
     // Gettery i Settery
@@ -24,12 +26,16 @@ public class DataPoint {
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
 
+    // Getter dla boolean w Javie nazywa się zwyczajowo "is..."
+    public boolean isAvailable() { return available; }
+    public void setAvailable(boolean available) { this.available = available; }
+
     public double getTotalValue() {
         return quantity * price;
     }
 
-    // Pomocnicza metoda do zapisu w formacie CSV
+    // Zapis do CSV (boolean zamieni się na string "true" lub "false")
     public String toCSV() {
-        return product + ";" + category + ";" + quantity + ";" + price;
+        return product + ";" + category + ";" + quantity + ";" + price + ";" + available;
     }
 }
