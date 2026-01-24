@@ -117,8 +117,13 @@ public class DashboardController {
             return;
         }
 
+        // --- TU JEST ZMIENNA DOUBLE ---
+        // Wynik z serwisu jest przypisywany do zmiennej typu double
         double result = mathService.calculate(data, field, op);
-        lblResult.setText(String.format("%s (%s):\n%.4f", op, field, result));
+
+        // Wyświetlanie wyniku
+        lblResult.setText(String.format("%s (%s):\n%.2f", op, field, result));
+
     }
 
     // --- IMPORT PLIKÓW (ZMIANA - Użycie nowych serwisów) ---
