@@ -10,6 +10,14 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.util.List;
 
+/**
+ * Kontroler główny aplikacji (Dashboard).
+ * Odpowiada za logikę interfejsu użytkownika, obsługę zdarzeń (kliknięć)
+ * oraz komunikację między warstwą widoku (FXML) a serwisami logicznymi.
+ *
+ * @author Bartosz Bieszczak
+ * @version 1.0
+ */
 public class DashboardController {
 
     // --- Elementy GUI ---
@@ -25,17 +33,20 @@ public class DashboardController {
     @FXML private BarChart<String, Number> barChart;
     @FXML private NumberAxis axisY;
 
-    // --- Dane ---
+    /** Lista obserwowalna przechowywująca dane wyświetlane w tabeli. */
     private ObservableList<DataPoint> data = FXCollections.observableArrayList();
 
-    // --- SERWISY (Tu nastąpiła zmiana) ---
+    // --- Serwisy ---
     private final DatabaseService dbService = new DatabaseService();
     private final MathService mathService = new MathService();
-
-    // Zamiast jednego FileService, mamy dwa wyspecjalizowane
     private final CsvService csvService = new CsvService();
     private final ExcelService excelService = new ExcelService();
 
+    /**
+     * Metoda inicjalizująca kontroler.
+     * Wywoływana automatycznie po załadowaniu pliku FXML.
+     * Konfiguruje tabelę, listy rozwijane oraz próbuje pobrać dane z bazy.
+     */
     @FXML
     public void initialize() {
         setupTable();
@@ -43,52 +54,139 @@ public class DashboardController {
         loadDataFromDB();
     }
 
-    // --- CRUD (Bez zmian) ---
+    // --- CRUD ---
+
+    /**
+     * Obsługuje przycisk "Dodaj".
+     * Pobiera dane z formularza, waliduje je i dodaje do tabeli.
+     */
     @FXML private void handleAdd() {
         try {
-            data.add(readForm());
+            // Używamy nowej metody z walidacją
+            DataPoint newPoint = readFormWithValidation();
+            data.add(newPoint);
             refreshView();
             handleClear();
             lblStatus.setText("Dodano wpis (lokalnie).");
-        } catch (Exception e) { showAlert("Błąd", e.getMessage()); }
-    }
-
-    @FXML private void handleUpdate() {
-        DataPoint selected = tableView.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            try {
-                DataPoint form = readForm();
-                selected.setProduct(form.getProduct());
-                selected.setCategory(form.getCategory());
-                selected.setQuantity(form.getQuantity());
-                selected.setPrice(form.getPrice());
-                selected.setAvailable(form.isAvailable());
-                refreshView();
-                lblStatus.setText("Zaktualizowano wpis.");
-            } catch (Exception e) { showAlert("Błąd", "Błędne dane"); }
+        } catch (IllegalArgumentException e) {
+            // Wyłapujemy błędy walidacji (puste pola, złe liczby)
+            showAlert("Błąd walidacji", e.getMessage());
+        } catch (Exception e) {
+            showAlert("Błąd krytyczny", e.getMessage());
         }
     }
 
+    /**
+     * Obsługuje przycisk "Aktualizuj".
+     * Nadpisuje wybrany w tabeli wiersz danymi z formularza.
+     */
+    @FXML private void handleUpdate() {
+        DataPoint selected = tableView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Błąd", "Nie wybrano elementu do edycji.");
+            return;
+        }
+
+        try {
+            DataPoint form = readFormWithValidation(); // Walidacja przy edycji też jest ważna!
+
+            selected.setProduct(form.getProduct());
+            selected.setCategory(form.getCategory());
+            selected.setQuantity(form.getQuantity());
+            selected.setPrice(form.getPrice());
+            selected.setAvailable(form.isAvailable());
+
+            refreshView();
+            lblStatus.setText("Zaktualizowano wpis.");
+        } catch (IllegalArgumentException e) {
+            showAlert("Błąd walidacji", e.getMessage());
+        }
+    }
+
+    /**
+     * Obsługuje przycisk "Usuń".
+     * Usuwa zaznaczony wiersz z tabeli.
+     */
     @FXML private void handleDelete() {
         DataPoint selected = tableView.getSelectionModel().getSelectedItem();
         if (selected != null) {
             data.remove(selected);
             refreshView();
             handleClear();
+            lblStatus.setText("Usunięto wpis.");
+        } else {
+            lblStatus.setText("Wybierz wiersz, aby usunąć.");
         }
     }
 
+    /**
+     * Czyści wszystkie pola formularza i odznacza wiersz w tabeli.
+     */
     @FXML private void handleClear() {
-        txtProduct.clear(); txtCategory.clear(); txtQuantity.clear(); txtPrice.clear();
+        txtProduct.clear();
+        txtCategory.clear();
+        txtQuantity.clear();
+        txtPrice.clear();
         chkAvailable.setSelected(false);
         tableView.getSelectionModel().clearSelection();
     }
 
-    // --- Baza Danych (Bez zmian) ---
+    // --- WALIDACJA ---
+
+    /**
+     * Pobiera dane z pól tekstowych, sprawdza ich poprawność i tworzy obiekt DataPoint.
+     * * @return Nowy obiekt DataPoint utworzony z wprowadzonych danych.
+     * @throws IllegalArgumentException Jeśli dane są niepoprawne (puste, nie są liczbami, ujemne).
+     */
+    private DataPoint readFormWithValidation() throws IllegalArgumentException {
+        // 1. Sprawdzenie czy pola tekstowe nie są puste
+        String prod = txtProduct.getText().trim();
+        String cat = txtCategory.getText().trim();
+
+        if (prod.isEmpty()) {
+            throw new IllegalArgumentException("Pole 'Produkt' nie może być puste.");
+        }
+        if (cat.isEmpty()) {
+            throw new IllegalArgumentException("Pole 'Kategoria' nie może być puste.");
+        }
+
+        // 2. Walidacja Ilości (Czy jest liczbą całkowitą?)
+        int qty;
+        try {
+            qty = Integer.parseInt(txtQuantity.getText().trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Pole 'Ilość' musi być liczbą całkowitą (np. 10).");
+        }
+
+        
+        double price;
+        try {
+            // Zamiana przecinka na kropkę dla wygody użytkownika
+            price = Double.parseDouble(txtPrice.getText().trim().replace(",", "."));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Pole 'Cena' musi być liczbą (np. 99.99).");
+        }
+
+        // 4. Walidacja logiczna (Czy liczby nie są ujemne?)
+        if (qty < 0) {
+            throw new IllegalArgumentException("Ilość nie może być ujemna.");
+        }
+        if (price < 0) {
+            throw new IllegalArgumentException("Cena nie może być ujemna.");
+        }
+
+        return new DataPoint(prod, cat, qty, price, chkAvailable.isSelected());
+    }
+
+    // --- Reszta metod (Baza, Import, Obliczenia) z dodanym JavaDoc ---
+
+    /**
+     * Zapisuje aktualny stan tabeli do bazy danych PostgreSQL.
+     */
     @FXML private void handleSaveToDB() {
         try {
             dbService.saveToDatabase(data);
-            lblStatus.setText("Zapisano w bazie PostgreSQL (3NF).");
+            lblStatus.setText("Zapisano w bazie PostgreSQL.");
             showAlert("Sukces", "Baza zaktualizowana.");
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,7 +205,9 @@ public class DashboardController {
         }
     }
 
-    // --- Obliczenia (Bez zmian) ---
+    /**
+     * Wykonuje wybraną operację matematyczną na danych.
+     */
     @FXML private void handleCalculate() {
         String field = comboField.getValue();
         String op = comboOperation.getValue();
@@ -117,32 +217,21 @@ public class DashboardController {
             return;
         }
 
-        // --- TU JEST ZMIENNA DOUBLE ---
-        // Wynik z serwisu jest przypisywany do zmiennej typu double
         double result = mathService.calculate(data, field, op);
-
-        // Wyświetlanie wyniku
-        lblResult.setText(String.format("%s (%s):\n%.2f", op, field, result));
-
+        lblResult.setText(String.format("%s (%s):\n%.4f", op, field, result));
     }
-
-    // --- IMPORT PLIKÓW (ZMIANA - Użycie nowych serwisów) ---
 
     @FXML private void handleImportCSV() {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
         File file = chooser.showOpenDialog(null);
-
         if (file != null) {
             try {
-                // Użycie CsvService
                 List<DataPoint> imported = csvService.load(file);
                 data.addAll(imported);
                 refreshView();
                 lblStatus.setText("Zaimportowano CSV.");
-            } catch (Exception e) {
-                showAlert("Błąd Importu CSV", e.getMessage());
-            }
+            } catch (Exception e) { showAlert("Błąd Importu", e.getMessage()); }
         }
     }
 
@@ -150,21 +239,19 @@ public class DashboardController {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Files", "*.xlsx"));
         File file = chooser.showOpenDialog(null);
-
         if (file != null) {
             try {
-                // Użycie ExcelService
                 List<DataPoint> imported = excelService.load(file);
                 data.addAll(imported);
                 refreshView();
                 lblStatus.setText("Zaimportowano Excel.");
-            } catch (Exception e) {
-                showAlert("Info Excel", e.getMessage());
-            }
+            } catch (Exception e) { showAlert("Błąd Excel", e.getMessage()); }
         }
     }
 
-    // --- UI Helpers (Bez zmian) ---
+    // --- Helpers ---
+
+    /** Odświeża tabelę i wykresy. */
     private void refreshView() {
         tableView.refresh();
         updateChart();
@@ -222,20 +309,26 @@ public class DashboardController {
         comboChartType.setOnAction(e -> updateChart());
     }
 
-    private DataPoint readForm() {
-        return new DataPoint(txtProduct.getText(), txtCategory.getText(),
-                Integer.parseInt(txtQuantity.getText()),
-                Double.parseDouble(txtPrice.getText().replace(",", ".")), chkAvailable.isSelected());
-    }
-
+    /**
+     * Wypełnia pola formularza danymi z wybranego obiektu.
+     * @param dp Obiekt DataPoint wybrany z tabeli.
+     */
     private void fillForm(DataPoint dp) {
         txtProduct.setText(dp.getProduct()); txtCategory.setText(dp.getCategory());
         txtQuantity.setText(String.valueOf(dp.getQuantity()));
         txtPrice.setText(String.valueOf(dp.getPrice())); chkAvailable.setSelected(dp.isAvailable());
     }
 
+    /**
+     * Wyświetla okno dialogowe z komunikatem.
+     * @param title Tytuł okna.
+     * @param content Treść komunikatu.
+     */
     private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title); alert.setContentText(content); alert.showAndWait();
+        Alert alert = new Alert(Alert.AlertType.WARNING); // Używamy WARNING dla błędów walidacji
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
