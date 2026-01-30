@@ -3,8 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Serwis obsługujący połączenie z bazą PostgreSQL.
- * Zawiera metody zapisu i odczytu danych przy użyciu JDBC.
+ * Serwis JDBC do obsługi bazy PostgreSQL (tabela produkty i kategorie).
  */
 public class DatabaseService {
 
@@ -13,25 +12,22 @@ public class DatabaseService {
     private static final String DB_PASS = "Barbie";
 
     /**
-     * Zapisuje listę produktów do bazy danych.
-     * Najpierw czyści tabele (TRUNCATE), a potem dodaje nowe rekordy.
-     * Obsługuje transakcje.
-     *
-     * @param data Lista produktów do zapisania.
-     * @throws SQLException Błąd SQL (np. brak połączenia).
+     * Zapisuje listę danych do bazy w jednej transakcji.
      */
     public void saveToDatabase(List<DataPoint> data) throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-        conn.setAutoCommit(false); // Start transakcji
+        conn.setAutoCommit(false); // Ręczne zarządzanie transakcją
 
         try {
             Statement stmt = conn.createStatement();
 
+            // Czyszczenie starych danych i resetowanie liczników ID
             System.out.println("Czyszczenie tabel...");
             stmt.execute("TRUNCATE TABLE produkty RESTART IDENTITY");
             stmt.execute("TRUNCATE TABLE kategorie RESTART IDENTITY CASCADE");
             stmt.close();
 
+            // Zapytania SQL do sprawdzania i wstawiania danych
             String checkCatSQL = "SELECT id FROM kategorie WHERE nazwa = ?";
             String insertCatSQL = "INSERT INTO kategorie (nazwa) VALUES (?) RETURNING id";
             String insertProdSQL = "INSERT INTO produkty (nazwa, ilosc, cena, dostepnosc, kategoria_id) VALUES (?, ?, ?, ?, ?)";
@@ -41,9 +37,9 @@ public class DatabaseService {
             PreparedStatement insertProdStmt = conn.prepareStatement(insertProdSQL);
 
             for (DataPoint dp : data) {
-                // 1. Sprawdzanie lub dodawanie kategorii
                 int catId = -1;
 
+                // Pobierz ID kategorii lub dodaj nową, jeśli nie istnieje
                 checkCatStmt.setString(1, dp.getCategory());
                 ResultSet rs = checkCatStmt.executeQuery();
 
@@ -58,7 +54,7 @@ public class DatabaseService {
                 }
                 rs.close();
 
-                // 2. Dodawanie produktu
+                // Wstawienie produktu powiązanego z kategorią
                 insertProdStmt.setString(1, dp.getProduct());
                 insertProdStmt.setInt(2, dp.getQuantity());
                 insertProdStmt.setDouble(3, dp.getPrice());
@@ -68,47 +64,41 @@ public class DatabaseService {
                 insertProdStmt.executeUpdate();
             }
 
-            conn.commit(); // Zatwierdzenie
+            conn.commit(); // Zatwierdzenie zmian
             System.out.println("Zapisano dane do bazy.");
 
         } catch (SQLException e) {
-            conn.rollback();
+            conn.rollback(); // Wycofanie zmian w razie błędu
             e.printStackTrace();
             throw e;
         } finally {
-            conn.close();
+            conn.close(); // Zamknięcie połączenia
         }
     }
 
     /**
-     * Pobiera wszystkie produkty z bazy danych.
-     *
-     * @return Lista produktów pobrana z bazy.
-     * @throws SQLException Błąd zapytania SQL.
+     * Pobiera listę produktów wraz z nazwami ich kategorii.
      */
     public List<DataPoint> loadFromDatabase() throws SQLException {
         List<DataPoint> list = new ArrayList<>();
         String query = "SELECT p.nazwa, p.ilosc, p.cena, p.dostepnosc, k.nazwa AS kategoria_nazwa " +
                 "FROM produkty p JOIN kategorie k ON p.kategoria_id = k.id";
 
-        Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
+        // Pobranie danych przy użyciu JOIN
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
 
-        while (rs.next()) {
-            String prod = rs.getString("nazwa");
-            String cat = rs.getString("kategoria_nazwa");
-            int qty = rs.getInt("ilosc");
-            double price = rs.getDouble("cena");
-            boolean avail = rs.getBoolean("dostepnosc");
-
-            DataPoint dp = new DataPoint(prod, cat, qty, price, avail);
-            list.add(dp);
+            while (rs.next()) {
+                list.add(new DataPoint(
+                        rs.getString("nazwa"),
+                        rs.getString("kategoria_nazwa"),
+                        rs.getInt("ilosc"),
+                        rs.getDouble("cena"),
+                        rs.getBoolean("dostepnosc")
+                ));
+            }
         }
-
-        rs.close();
-        stmt.close();
-        conn.close();
 
         return list;
     }
