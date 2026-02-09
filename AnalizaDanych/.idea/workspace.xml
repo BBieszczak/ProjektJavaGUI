@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0d4e0ab8-b2bd-4427-a067-30427d7c54d4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/untitled/CsvService.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/untitled/CsvService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/untitled/DashboardController$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/untitled/DashboardController$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/untitled/DashboardController.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/untitled/DashboardController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/untitled/DatabaseService.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/untitled/DatabaseService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CsvService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/CsvService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/DatabaseService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/DatabaseService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../DokumentacjaProgramowanieObiektowe.docx" beforeDir="false" afterPath="$PROJECT_DIR$/../DokumentacjaProgramowanieObiektowe.docx" afterDir="false" />
-    </list>
+    <list default="true" id="0d4e0ab8-b2bd-4427-a067-30427d7c54d4" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,23 +49,6 @@
     "settings.editor.selected.configurable": "preferences.JavaFX"
   }
 }]]></component>
-  <component name="RunManager">
-    <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Main" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">

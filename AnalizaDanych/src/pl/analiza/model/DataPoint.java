@@ -1,3 +1,5 @@
+package pl.analiza.model;
+
 /**
  * Model danych reprezentujący pojedynczy produkt w magazynie.
  * Klasa typu POJO (Plain Old Java Object) używana do przechowywania danych w tabeli.

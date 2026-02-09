@@ -1,3 +1,7 @@
+package pl.analiza.service;
+
+import pl.analiza.model.DataPoint;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

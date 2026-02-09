@@ -1,5 +1,8 @@
+package pl.analiza.service;
+
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import pl.analiza.model.DataPoint;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,12 +17,12 @@ import java.util.List;
 public class ExcelService {
 
     /**
-     * Wczytuje dane z pliku Excel i mapuje je na listę obiektów DataPoint.
+     * Wczytuje dane z pliku Excel i mapuje je na listę obiektów pl.analiza.model.DataPoint.
      * Metoda otwiera plik, pobiera pierwszy arkusz i iteruje po wierszach,
      * konwertując wartości komórek na odpowiednie typy danych.
      *
      * @param file Plik Excel (.xlsx) wskazany przez użytkownika.
-     * @return Lista obiektów DataPoint z wczytanymi danymi.
+     * @return Lista obiektów pl.analiza.model.DataPoint z wczytanymi danymi.
      * @throws IOException Rzucany w przypadku błędu wejścia/wyjścia (np. plik jest uszkodzony lub otwarty w innym programie).
      */
     public List<DataPoint> load(File file) throws IOException {
