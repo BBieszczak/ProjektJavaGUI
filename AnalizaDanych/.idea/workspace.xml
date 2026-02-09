@@ -38,6 +38,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.Launcher.executor": "Run",
     "Application.Main.executor": "Run",
     "Downloaded.Files.Path.Enabled": "false",
     "Repository.Attach.Annotations": "false",
