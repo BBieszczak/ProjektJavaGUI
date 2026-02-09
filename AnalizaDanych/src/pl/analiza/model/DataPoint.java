@@ -1,8 +1,11 @@
 package pl.analiza.model;
 
 /**
- * Model danych reprezentujący pojedynczy produkt w magazynie.
- * Klasa typu POJO (Plain Old Java Object) używana do przechowywania danych w tabeli.
+ * Model danych reprezentujący pojedynczy produkt w systemie.
+ * <p>
+ * Jest to klasa typu POJO (Plain Old Java Object), która przechowuje informacje
+ * o produkcie i jest wykorzystywana przez TableView oraz serwisy danych.
+ * </p>
  */
 public class DataPoint {
     private String product;
@@ -15,10 +18,10 @@ public class DataPoint {
      * Konstruktor tworzący nowy obiekt produktu.
      *
      * @param product   Nazwa produktu.
-     * @param category  Nazwa kategorii.
-     * @param quantity  Ilość sztuk (liczba całkowita).
-     * @param price     Cena jednostkowa.
-     * @param available Status dostępności (true = dostępny).
+     * @param category  Nazwa kategorii, do której produkt należy.
+     * @param quantity  Ilość sztuk na stanie (musi być liczbą całkowitą).
+     * @param price     Cena jednostkowa produktu.
+     * @param available Status dostępności (true = dostępny, false = niedostępny).
      */
     public DataPoint(String product, String category, int quantity, double price, boolean available) {
         this.product = product;
@@ -28,69 +31,41 @@ public class DataPoint {
         this.available = available;
     }
 
-    /**
-     * Pobiera nazwę produktu.
-     * @return Nazwa produktu.
-     */
+    /** Pobiera nazwę produktu. @return Nazwa produktu. */
     public String getProduct() { return product; }
 
-    /**
-     * Ustawia nazwę produktu.
-     * @param product Nowa nazwa.
-     */
+    /** Ustawia nazwę produktu. @param product Nowa nazwa. */
     public void setProduct(String product) { this.product = product; }
 
-    /**
-     * Pobiera kategorię.
-     * @return Nazwa kategorii.
-     */
+    /** Pobiera kategorię produktu. @return Nazwa kategorii. */
     public String getCategory() { return category; }
 
-    /**
-     * Ustawia kategorię.
-     * @param category Nowa kategoria.
-     */
+    /** Ustawia kategorię produktu. @param category Nowa kategoria. */
     public void setCategory(String category) { this.category = category; }
 
-    /**
-     * Pobiera ilość.
-     * @return Ilość sztuk.
-     */
+    /** Pobiera ilość produktu. @return Ilość sztuk. */
     public int getQuantity() { return quantity; }
 
-    /**
-     * Ustawia ilość.
-     * @param quantity Nowa ilość.
-     */
+    /** Ustawia ilość produktu. @param quantity Nowa ilość. */
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    /**
-     * Pobiera cenę.
-     * @return Cena produktu.
-     */
+    /** Pobiera cenę jednostkową. @return Cena. */
     public double getPrice() { return price; }
 
-    /**
-     * Ustawia cenę.
-     * @param price Nowa cena.
-     */
+    /** Ustawia cenę jednostkową. @param price Nowa cena. */
     public void setPrice(double price) { this.price = price; }
 
-    /**
-     * Sprawdza dostępność.
-     * @return true jeśli produkt jest dostępny.
-     */
+    /** Sprawdza status dostępności. @return true jeśli dostępny. */
     public boolean isAvailable() { return available; }
 
-    /**
-     * Ustawia dostępność.
-     * @param available Nowy status dostępności.
-     */
+    /** Ustawia status dostępności. @param available Nowy status. */
     public void setAvailable(boolean available) { this.available = available; }
 
     /**
-     * Oblicza wartość całkowitą (ilość * cena).
-     * @return Wartość jako double.
+     * Oblicza wartość całkowitą magazynu dla tego produktu.
+     * Wzór: ilość * cena.
+     *
+     * @return Wartość całkowita jako double.
      */
     public double getTotalValue() { return quantity * price; }
 }

@@ -7,34 +7,45 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Główna klasa startowa aplikacji.
- * Odpowiada za załadowanie pliku widoku FXML i wyświetlenie okna.
+ * Główna klasa startowa aplikacji "System Analizy Danych".
+ * <p>
+ * Odpowiada za inicjalizację środowiska JavaFX, załadowanie głównego widoku (pliku FXML)
+ * oraz wyświetlenie okna aplikacji użytkownikowi.
+ * </p>
  */
 public class Main extends Application {
 
     /**
-     * Metoda startowa JavaFX.
-     * Ładuje zasób "dashboard.fxml" i ustawia scenę główną.
+     * Metoda startowa cyklu życia aplikacji JavaFX.
+     * <p>
+     * Jest wywoływana automatycznie po uruchomieniu aplikacji.
+     * Ładuje zasób "dashboard.fxml", tworzy scenę i ustawia tytuł okna.
+     * </p>
      *
-     * @param primaryStage Główne okno (scena) aplikacji.
-     * @throws Exception Wyrzucany w przypadku problemów z ładowaniem pliku FXML.
+     * @param primaryStage Główne okno (scena) aplikacji dostarczone przez platformę JavaFX.
+     * @throws Exception Wyrzucany w przypadku problemów z ładowaniem pliku widoku (np. brak pliku .fxml).
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Dodaj ukośnik na początku
+        // Ładowanie pliku widoku z zasobów (ścieżka musi zaczynać się od /)
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
         Parent root = loader.load();
 
+        // Konfiguracja głównego okna
         primaryStage.setTitle("System Analizy Danych - Bartosz Bieszczak");
         primaryStage.setScene(new Scene(root));
+
+        // Wyświetlenie okna użytkownikowi
         primaryStage.show();
     }
 
     /**
-     * Punkt wejścia do programu (metoda main).
-     * Uruchamia aplikację JavaFX.
+     * Główny punkt wejścia do programu (metoda main).
+     * <p>
+     * Uruchamia metodę {@link #launch(String...)}, która inicjuje środowisko JavaFX.
+     * </p>
      *
-     * @param args Argumenty wiersza poleceń.
+     * @param args Argumenty wiersza poleceń przekazane podczas uruchamiania programu.
      */
     public static void main(String[] args) {
         launch(args);

@@ -1,1 +1,4 @@
-unnamed package
+pl.analiza
+pl.analiza.controller
+pl.analiza.model
+pl.analiza.service

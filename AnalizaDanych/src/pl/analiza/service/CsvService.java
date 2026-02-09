@@ -10,46 +10,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Serwis do obsługi plików CSV.
+ * Serwis odpowiedzialny za import danych z plików tekstowych CSV.
  */
 public class CsvService {
 
     /**
-     * Wczytuje dane z pliku tekstowego CSV.
-     * Oczekuje separatora średnik (;).
+     * Wczytuje dane z pliku CSV i konwertuje je na listę obiektów DataPoint.
+     * <p>
+     * Oczekiwany format pliku:
+     * Produkt;Kategoria;Ilość;Cena;Dostępność
+     * </p>
      *
-     * @param file Plik wejściowy.
-     * @return Lista wczytanych obiektów.
-     * @throws IOException Błąd odczytu pliku.
+     * @param file Plik wejściowy wybrany przez użytkownika.
+     * @return Lista wczytanych produktów.
+     * @throws IOException Błąd podczas odczytu pliku z dysku.
      */
     public List<DataPoint> load(File file) throws IOException {
-        // Inicjalizacja listy wynikowej
         List<DataPoint> result = new ArrayList<>();
 
-        // Try-with-resources: automatycznie zamyka plik po zakończeniu
+        // Użycie try-with-resources dla bezpiecznego zamknięcia strumienia
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
-            // Pętla czytająca plik linia po linii
+            // Pętla odczytująca plik linia po linii do końca
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(";"); // Podział linii wg separatora
+                // Podział linii według średnika
+                String[] parts = line.split(";");
 
-                // Sprawdzenie, czy wiersz ma wymaganą liczbę kolumn
+                // Walidacja: czy wiersz ma wystarczającą liczbę kolumn (5)
                 if (parts.length >= 5) {
                     try {
-                        // Pobranie danych i usunięcie zbędnych spacji (trim)
+                        // Oczyszczenie danych ze spacji (trim)
                         String prod = parts[0].trim();
                         String cat = parts[1].trim();
                         int qty = Integer.parseInt(parts[2].trim());
 
-                        // Normalizacja ceny: zamiana polskiego przecinka na kropkę
+                        // Obsługa formatu ceny (zamiana polskiego przecinka na kropkę)
                         double price = Double.parseDouble(parts[3].trim().replace(",", "."));
                         boolean avail = Boolean.parseBoolean(parts[4].trim());
 
-                        // Dodanie poprawnego obiektu do listy
                         result.add(new DataPoint(prod, cat, qty, price, avail));
                     } catch (NumberFormatException e) {
-                        // Obsługa błędów parsowania liczby (np. tekst zamiast cyfry)
-                        System.out.println("Pominięto wiersz: " + line);
+                        // Logowanie błędu, jeśli dane w kolumnie liczbowej są nieprawidłowe
+                        System.out.println("Błąd formatu liczby w linii: " + line);
                     }
                 }
             }
